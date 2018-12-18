@@ -1,0 +1,17 @@
+int Main()
+{
+int x := 10;
+int y := 5;
+write "Value of y = ";
+write y;
+write endl;
+x := y;
+if x<y then
+x := 10;
+end
+write x;
+repeat
+x := x-1;
+write endl;
+write x;
+}

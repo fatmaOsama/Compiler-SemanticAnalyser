@@ -1,0 +1,49 @@
+c:\users\islam\documents\visual studio 2013\Projects\JASONParser\JASONParser\bin\Debug\JASONParser.exe.config
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\bin\Debug\JASONParser.exe.config
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\bin\Debug\JASONParser.exe
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\bin\Debug\JASONParser.pdb
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\obj\Debug\JASONParser.csprojResolveAssemblyReference.cache
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\obj\Debug\JASONParser.Form1.resources
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\obj\Debug\JASONParser.Properties.Resources.resources
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\obj\Debug\JASONParser.csproj.GenerateResource.Cache
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\obj\Debug\JASONParser.exe
+C:\Users\Islam\Desktop\Current Courses\compiler\2017\Parser Template\JASONParser\JASONParser\obj\Debug\JASONParser.pdb
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\bin\Debug\JASONParser.exe.config
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.exe
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.pdb
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.csprojResolveAssemblyReference.cache
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.Form1.resources
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.Properties.Resources.resources
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.csproj.GenerateResource.Cache
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\bin\Debug\JASONParser.exe
+C:\Users\Islam\Desktop\Current Courses\compiler\semantics\Semantic Template\JASONParser\JASONParser\bin\Debug\JASONParser.pdb
+E:\Semantic Template\JASONParser\JASONParser\bin\Debug\JASONParser.exe.config
+E:\Semantic Template\JASONParser\JASONParser\bin\Debug\JASONParser.exe
+E:\Semantic Template\JASONParser\JASONParser\bin\Debug\JASONParser.pdb
+E:\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.csprojResolveAssemblyReference.cache
+E:\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.Form1.resources
+E:\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.Properties.Resources.resources
+E:\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.csproj.GenerateResource.Cache
+E:\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.exe
+E:\Semantic Template\JASONParser\JASONParser\obj\Debug\JASONParser.pdb
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\bin\Debug\JASONParser.exe.config
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\bin\Debug\JASONParser.exe
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\bin\Debug\JASONParser.pdb
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\obj\Debug\JASONParser.csprojResolveAssemblyReference.cache
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\obj\Debug\JASONParser.Form1.resources
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\obj\Debug\JASONParser.Properties.Resources.resources
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\obj\Debug\JASONParser.csproj.GenerateResource.Cache
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\obj\Debug\JASONParser.exe
+C:\Users\Fujitsu\Desktop\JASONParser\JASONParser\obj\Debug\JASONParser.pdb
+E:\FCIS 4th Year\1st Sem\Compiler\Labs\Lab9-20181214T072543Z-001\Lab9\JASONParser\JASONParser\bin\Debug\JASONParser.exe.config
+E:\FCIS 4th Year\1st Sem\Compiler\Labs\Lab9-20181214T072543Z-001\Lab9\JASONParser\JASONParser\obj\Debug\JASONParser.exe
+E:\FCIS 4th Year\1st Sem\Compiler\Labs\Lab9-20181214T072543Z-001\Lab9\JASONParser\JASONParser\obj\Debug\JASONParser.pdb
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\bin\Debug\JASONParser.exe.config
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\obj\Debug\JASONParser.exe
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\obj\Debug\JASONParser.pdb
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\obj\Debug\JASONParser.csprojResolveAssemblyReference.cache
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\obj\Debug\JASONParser.Form1.resources
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\obj\Debug\JASONParser.Properties.Resources.resources
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\obj\Debug\JASONParser.csproj.GenerateResource.Cache
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\bin\Debug\JASONParser.exe
+E:\FCIS 4th Year\1st Sem\Compiler\Semantic Task\JASONParser\JASONParser\bin\Debug\JASONParser.pdb
