@@ -51,8 +51,13 @@ namespace JASON_Compiler
         private void button1_Click(object sender, EventArgs e)
         {
             SemanticAnalyser.treeroot = MainRoot;
+            SemanticAnalyser.TreeName(SemanticAnalyser.treeroot);
             SemanticAnalyser.TraverseTree(SemanticAnalyser.treeroot);
             treeView1.Nodes.Add(SemanticAnalyser.PrintSemanticTree(SemanticAnalyser.treeroot));
+            foreach (var item in SemanticAnalyser.SymbolTable)
+            {
+                listBox1.Items.Add(item.Scope + " " + item.DataType + " " + item.Name + "=" + item.Value);
+            }
         }
     }
 }

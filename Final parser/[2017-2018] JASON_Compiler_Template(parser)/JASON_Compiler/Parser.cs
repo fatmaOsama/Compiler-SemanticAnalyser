@@ -11,8 +11,8 @@ namespace JASON_Compiler
     {
         public List<Node> children = new List<Node>();
         public Token token;
-        public int value = Int32.MinValue;
-        //public object value;
+        //public int value = Int32.MinValue;
+        public object value;
         public string datatype = "";
         public string Name;
       
@@ -413,11 +413,20 @@ namespace JASON_Compiler
             Node n = new Node("Term");
             if (myTokens[i].token_type == Token_Class.Constant )
             {
-                n.children.Add(match(Token_Class.Constant));
+                Node nn = new Node("Constant");
+                nn.children.Add(match(Token_Class.Constant));
+                n.children.Add(nn);
+
 
             }
-            else if (myTokens[i].token_type == Token_Class.Idenifier && myTokens[i + 1].token_type == Token_Class.LeftParanthesis) { n.children.Add(FunctionCall()); }
-            else if (myTokens[i].token_type == Token_Class.Idenifier) { n.children.Add(match(Token_Class.Idenifier)); }
+            else if (myTokens[i].token_type == Token_Class.Idenifier && myTokens[i + 1].token_type == Token_Class.LeftParanthesis)
+            {
+                n.children.Add(FunctionCall());
+            }
+            else if (myTokens[i].token_type == Token_Class.Idenifier)
+            {
+                n.children.Add(match(Token_Class.Idenifier));
+            }
 
             return n;
         }
@@ -706,9 +715,9 @@ namespace JASON_Compiler
 
         public static Node match(Token_Class ExpectedToken)
         {
-            string temp = Enum.GetName(typeof(Token_Class), ExpectedToken);
-            Node node = new Node(temp);
-            //Node node = new Node();
+           // string temp = Enum.GetName(typeof(Token_Class), ExpectedToken);
+            //Node node = new Node(temp);
+            Node node = new Node();
             //  if (i < myTokens.Count)
             //{
             if (myTokens[i].token_type == ExpectedToken)
@@ -735,7 +744,11 @@ namespace JASON_Compiler
         {
             Node n = new Node("terminals");
             if (myTokens[i].token_type == Token_Class.Constant )
-            { n.children.Add(match(Token_Class.Constant)); }
+            {
+                Node nn = new Node("Constant");
+                nn.children.Add(match(Token_Class.Constant));
+                n.children.Add(nn);
+            }
             else if (myTokens[i].token_type == Token_Class.Idenifier)
             {
                 Node temp = match(Token_Class.Idenifier);

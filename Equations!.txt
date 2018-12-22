@@ -1,0 +1,82 @@
+public static void HandleEquation(Node root)
+        {
+            if (root.children[0].Name == "Eq1")
+            {
+                HandleEquation1(root.children[0]);
+                root.datatype = root.children[0].datatype;
+                root.value = root.children[0].value;
+
+            }
+            else
+            {
+                HandleEquation(root.children[0]);
+                //AddOp!
+                HandleEquation1(root.children[2]);
+                root.datatype = root.children[2].datatype;
+                if (root.children[1].Name == "+")
+                {
+                    //could be root.children[0].datatype=="int"
+                    if (root.children[0].value.GetType() == typeof(int))
+                    {
+                        root.value = (int)root.children[0].value + (int)root.children[2].value;
+                    }
+                    else if (root.children[0].value.GetType() == typeof(float))
+                    {
+                        root.value = (float)root.children[0].value + (float)root.children[2].value;
+                    }
+                }
+                else
+                {
+                    //could be root.children[0].datatype=="int"
+                    if (root.children[0].value.GetType() == typeof(int))
+                    {
+                        root.value = (int)root.children[0].value - (int)root.children[2].value;
+                    }
+                    else if (root.children[0].value.GetType() == typeof(float))
+                    {
+                        root.value = (float)root.children[0].value - (float)root.children[2].value;
+                    }
+                }
+            }   
+        }
+        public static void HandleEquation1(Node root)
+        {
+            if(root.children[0].Name == "Eq2")
+            {
+                HandleEquation2(root.children[0]);
+                root.datatype = root.children[0].datatype;
+                root.value = root.children[0].value;
+            }
+            else
+            {
+                HandleEquation1(root.children[0]);
+                //MulOp!
+                HandleEquation2(root.children[2]);
+                root.datatype = root.children[2].datatype;
+                if (root.children[1].Name == "*")
+                {
+                    //could be root.children[0].datatype=="int"
+                    if (root.children[0].value.GetType() == typeof(int))
+                    {
+                        root.value =(int) root.children[0].value * (int)root.children[2].value;
+                    }
+                    else if(root.children[0].value.GetType() == typeof(float))
+                    {
+                        root.value = (float)root.children[0].value * (float)root.children[2].value;
+                    }
+                }
+                else
+                {
+                    //could be root.children[0].datatype=="int"
+                    if (root.children[0].value.GetType() == typeof(int))
+                    {
+                        root.value = (int)root.children[0].value / (int)root.children[2].value;
+                    }
+                    else if (root.children[0].value.GetType() == typeof(float))
+                    {
+                        root.value = (float)root.children[0].value / (float)root.children[2].value;
+                    }
+                }
+
+            }
+        }
