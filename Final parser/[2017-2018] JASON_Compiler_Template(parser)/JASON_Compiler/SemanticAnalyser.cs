@@ -51,7 +51,7 @@ namespace JASON_Compiler
 
                 if (Result.Scope == NewSymbolVal.Scope)
                 {
-                    MessageBox.Show("Variable already declared");
+                    MessageBox.Show("Variable " +Result.Name+" already declared");
                     return false;
                 }
                 else
@@ -71,7 +71,7 @@ namespace JASON_Compiler
             SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName);
             if (Result == null)
             {
-                MessageBox.Show("Variable Doesn't Exist");
+                MessageBox.Show("Variable "+ VariableName+" Doesn't Exist");
                 return false;
             }
             else
@@ -599,6 +599,7 @@ namespace JASON_Compiler
         }
         public static void HandleConditionStatment(Node root)
         {
+            bool final;
             if (root.children.Count == 0)
             {
                 return;
@@ -608,6 +609,8 @@ namespace JASON_Compiler
                 //ConditionOperator root.children[0];
                 HandleConditionStatment(root.children[1]);
                 HandleConditionStatment(root.children[2]);
+                root.value = root.children[1].value;
+
             }
             else if (root.Name == "ConditionStatementAnd")
             {
@@ -615,11 +618,21 @@ namespace JASON_Compiler
                 //condtion
                 string VariableName = root.children[1].children[0].Name;
                 SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope == CurrentScope);
+                root.children[1].children[0].value = Result.Value;
+                root.children[1].children[0].datatype = Result.DataType;
                 string Opp = root.children[1].children[1].children[0].Name;
                 HandleTerm(root.children[1].children[2]);
                 root.children[1].value = EvaluateCondition(Result, Opp, root.children[1].children[2]);
                 //CondStatments
                 HandleConditionStatment(root.children[2]);
+                if (root.children[2].children.Count == 0)
+                {
+                    root.value = root.children[1].value;
+                }
+                else
+                {
+                    root.value = (Convert.ToBoolean(root.children[1].value) && Convert.ToBoolean(root.children[2].value));
+                }
 
             }
             else
@@ -628,10 +641,21 @@ namespace JASON_Compiler
                 {
                     string VariableName = root.children[0].children[0].Name;
                     SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope == CurrentScope);
+                    root.children[0].children[0].value = Result.Value;
+                    root.children[0].children[0].datatype = Result.DataType;
                     string Opp = root.children[0].children[1].children[0].Name;
                     HandleTerm(root.children[0].children[2]);
                     root.children[0].value = EvaluateCondition(Result, Opp, root.children[0].children[2]);
+
                     HandleConditionStatment(root.children[1]);
+                    if (root.children[1].children.Count == 0)
+                    {
+                        root.value = root.children[0].value;
+                    }
+                    else
+                    {
+                        root.value = (Convert.ToBoolean(root.children[0].value) && Convert.ToBoolean(root.children[1].value));
+                    }
                 }
                 else
                 {
@@ -639,8 +663,8 @@ namespace JASON_Compiler
                 }
                 HandleConditionStatment(root.children[1]);
             }
-           
-            
+            final = Convert.ToBoolean(root.children[0].value) || Convert.ToBoolean(root.children[1].value);
+            root.value = final;
         }
         public static bool EvaluateCondition(SymbolValue Right,string Opp ,Node Left)
         {
