@@ -127,7 +127,7 @@ namespace JASON_Compiler
             {
                 HandleFunctionStatement(root);
             }
-
+      
         }
 
         public static void HandleDeclerationStatment(Node root)
@@ -140,7 +140,7 @@ namespace JASON_Compiler
         }
         public static void HandleDatatype(Node root)
         {
-            root.datatype = root.children[0].Name;
+            root.datatype = root.children[0].token.token_type.ToString() ;
             root.token.token_type=root.children[0].token.token_type;
         }
         public static void HandleListIdentifier(Node root)
@@ -149,16 +149,25 @@ namespace JASON_Compiler
             {
                 return;
             }
-            if(root.children[0].Name== "Hazmbola")
+            if (root.children[0].Name == "Hazmbola" || root.Name == "Hazmbola")
             {
                 root.children[0].datatype = root.datatype;
                 HandleZ(root.children[0]);
             }
-            root.children[1].datatype = root.datatype;
-            HandleListIdentifier(root.children[1]);
-            
-           
-        }
+            else
+            {
+                int start = 0;
+                if (root.children[0].Name == ",")
+                {
+                    start = 1;
+                }
+                for (int i = start; i < root.children.Count; i++)
+                {
+                    root.children[1].datatype = root.datatype;
+                    HandleListIdentifier(root.children[1]);
+                }
+            }
+         }
         public static void HandleZ(Node root)
         {
             
@@ -183,7 +192,14 @@ namespace JASON_Compiler
         public static void HandleAssignmentStatement(Node root)
         {
             HandleExpression(root.children[2]);
-            AssignValue(root.children[0].Name, root.children[2]);
+            if(AssignValue(root.children[0].Name, root.children[2]))
+            {
+                root.children[0].value = root.children[2].value;
+                root.children[0].datatype = root.children[2].datatype;
+                root.value = root.children[2].value;
+                root.datatype = root.children[2].datatype;
+            }
+            
         }
         public static void HandleExpression(Node root)
         {
@@ -256,12 +272,12 @@ namespace JASON_Compiler
                 root.children[0].value=root.children[0].children[0].Name;
                 if (root.children[0].children[0].Name.Contains("."))
                 {
-                    root.children[0].datatype = "float";
+                    root.children[0].datatype = root.children[0].datatype.ToString();
                     root.children[0].children[0].datatype = root.children[0].datatype;
                 }
                 else
                 {
-                    root.children[0].datatype = "int";
+                    root.children[0].datatype = root.children[0].datatype.ToString();
                     root.children[0].children[0].datatype = root.children[0].datatype;
                 }
                
@@ -269,6 +285,7 @@ namespace JASON_Compiler
             else if (root.children[0].Name == "FunctionCall")
             {
                 HandleFuncCall(root.children[0]);
+                root.children[0].value =float.MinValue; //default value! Needs If conditions
             }
             else
             {
@@ -326,11 +343,12 @@ namespace JASON_Compiler
         {
             string FunctionName = root.children[0].Name;
             CalledFunction = FunctionName;
+            FunctionValue temp = FunctionTable.Find(fv => fv.ID == CalledFunction);
+            root.datatype = temp.ReturnType.ToString();
             //root.children[1] (
             int count = 0;
             HandleCallList(root.children[2].children[0],ref count);
             //MessageBox.Show(count.ToString());
-            FunctionValue temp = FunctionTable.Find(fv => fv.ID == CalledFunction);
             if (temp.ParameterNumber != count)
             {
                 MessageBox.Show("Exceeded Parameters Number!");
