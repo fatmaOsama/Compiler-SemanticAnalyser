@@ -27,6 +27,7 @@ namespace JASON_Compiler
     public class Scanner
     {
         public static List<Token> Tokens = new List<Token>();
+        public static List<Token> Tokens1 = new List<Token>();
         //public List<Token> Errors = new List<Token>();
         Dictionary<string, Token_Class> ReservedWords = new Dictionary<string, Token_Class>();
         Dictionary<string, Token_Class> Operators = new Dictionary<string, Token_Class>();
@@ -312,7 +313,10 @@ namespace JASON_Compiler
             }
 
             Tokens.Add(Tok);
-
+            if (Tok.token_type != Token_Class.Comment)
+            {
+                Tokens1.Add(Tok);
+            }
         }
 
         bool isIdentifier(string lex)

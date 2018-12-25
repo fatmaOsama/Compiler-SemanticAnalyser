@@ -305,8 +305,16 @@ namespace JASON_Compiler
             {
                 //coudl throw exception because might retrun null
                 SymbolValue Result = SymbolTable.Find(sv => sv.Name == root.children[0].Name && sv.Scope==CurrentScope);
-                root.children[0].datatype = Result.DataType;
-                root.children[0].value = Result.Value;
+                if (Result == null)
+                {
+                    MessageBox.Show("Variable " + root.children[0].Name + " doesn't exist in " + CurrentScope);
+                }
+                else
+                {
+
+                    root.children[0].datatype = Result.DataType;
+                    root.children[0].value = Result.Value;
+                }
             }
             root.datatype = root.children[0].datatype;
             root.value = root.children[0].value;
@@ -320,11 +328,11 @@ namespace JASON_Compiler
             if (root.children.Count == 1)
             {
                 SymbolValue sv = new SymbolValue();
-                if (root.datatype == "int")
+                if (root.datatype == Token_Class.Integer.ToString())
                 {
                     root.children[0].value = 0;
                 }
-                else if (root.datatype == "float")
+                else if (root.datatype == Token_Class.Float.ToString())
                 {
                     root.children[0].value = 0.0;
                 }
@@ -543,6 +551,11 @@ namespace JASON_Compiler
             {
                 HandleExpression(root.children[1].children[0]);
             }
+            else if(root.children[1].children[0].Name == "endl")
+            {
+                root.children[1].children[0].datatype = Token_Class.String.ToString();
+                root.children[1].children[0].value = "endl";
+            }
             root.children[1].value = root.children[1].children[0].value;
             root.children[1].datatype = root.children[1].children[0].datatype;
             root.value = root.children[1].value;
@@ -556,7 +569,33 @@ namespace JASON_Compiler
             //root.children[2] -> then
             //root.children[3] -> Statments
             //root.children[4] -> ElseChoice
-            HandleConditionStatment(root.children[4]);
+            if(root.children[4].children[0].Name== "ElseIfStatement")
+            {
+                //HandleElseIfStatment(root.children[4].children[0]);
+                HandleIfStatment(root.children[4].children[0]);
+            }
+            else if (root.children[4].children[0].Name == "ElseStatement")
+            {
+                //Nothing to handle
+               // HandleElseStatment(root.children[4].children[0]);
+            }
+            else //hena fel end
+            {
+                CurrentScope = "main";
+            }
+        }
+        //public static void HandleElseIfStatment(Node root)
+        //{
+        //    //root.children[0] -> elseif
+        //    //root.children[1] -> ConditionStatment
+        //    HandleConditionStatment(root.children[1]);
+        //    //root.children[2] -> then
+        //    //root.children[3] -> Statments
+        //    //root.children[4] -> ElseChoice
+        //}
+        public static void HandleElseStatment(Node root)
+        {
+
         }
         public static void HandleConditionStatment(Node root)
         {
@@ -564,19 +603,44 @@ namespace JASON_Compiler
             {
                 return;
             }
-            if (root.children[0].Name == "Condition")
+            if (root.Name== "ConditionStatementOR")
             {
-                string VariableName = root.children[0].children[0].Name;
+                //ConditionOperator root.children[0];
+                HandleConditionStatment(root.children[1]);
+                HandleConditionStatment(root.children[2]);
+            }
+            else if (root.Name == "ConditionStatementAnd")
+            {
+                //opp
+                //condtion
+                string VariableName = root.children[1].children[0].Name;
                 SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope == CurrentScope);
-                string Opp = root.children[0].children[1].children[0].Name;
-                HandleTerm(root.children[0].children[2]);
-                root.children[0].value = EvaluateCondition(Result, Opp, root.children[0].children[2]);
-                
+                string Opp = root.children[1].children[1].children[0].Name;
+                HandleTerm(root.children[1].children[2]);
+                root.children[1].value = EvaluateCondition(Result, Opp, root.children[1].children[2]);
+                //CondStatments
+                HandleConditionStatment(root.children[2]);
+
             }
             else
             {
-                HandleConditionStatment(root.children[0]);
+                if (root.children[0].Name == "Condition")
+                {
+                    string VariableName = root.children[0].children[0].Name;
+                    SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope == CurrentScope);
+                    string Opp = root.children[0].children[1].children[0].Name;
+                    HandleTerm(root.children[0].children[2]);
+                    root.children[0].value = EvaluateCondition(Result, Opp, root.children[0].children[2]);
+                    HandleConditionStatment(root.children[1]);
+                }
+                else
+                {
+                    HandleConditionStatment(root.children[0]);
+                }
+                HandleConditionStatment(root.children[1]);
             }
+           
+            
         }
         public static bool EvaluateCondition(SymbolValue Right,string Opp ,Node Left)
         {

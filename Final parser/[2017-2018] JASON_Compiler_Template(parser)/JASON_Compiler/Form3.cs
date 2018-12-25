@@ -16,7 +16,7 @@ namespace JASON_Compiler
         public Form3()
         {
             InitializeComponent();
-            Node root = SyntaxAnalyser.Parse(Scanner.Tokens);
+            Node root = SyntaxAnalyser.Parse(Scanner.Tokens1);
             MainRoot = root;
             treeView1.Nodes.Add(SyntaxAnalyser.PrintParseTree(root));
             PrintErrors();
