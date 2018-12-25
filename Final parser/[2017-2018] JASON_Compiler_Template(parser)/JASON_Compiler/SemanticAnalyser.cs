@@ -112,7 +112,7 @@ namespace JASON_Compiler
             {
                 HandleAssignmentStatement(root);
             }
-            if(root.Name == "FuncStatement")
+            if (root.Name == "FuncStatment1" || root.Name == "FuncStatement")
             {
                 HandleFunctionStatement(root);
             }
@@ -335,6 +335,7 @@ namespace JASON_Compiler
             fv.ReturnType = root.children[0].token.token_type;
             //HandleFuncName
             fv.ID = root.children[1].children[0].Name;
+            CurrentScope = fv.ID;
             //root.children[2]=(
             fv.ParamterDataType = new List<string>();
             HandleListParameters(root.children[3], fv.ParamterDataType);
@@ -354,23 +355,70 @@ namespace JASON_Compiler
                 HandleDatatype(root.children[0]);
                 list.Add(root.children[0].datatype);
                 //root.children[1] ParameterName!
+                root.children[1].datatype = root.children[0].datatype;
+                SymbolValue sv = new SymbolValue();
+                sv.Name = root.children[1].Name;
+                sv.Scope = CurrentScope;
+                sv.DataType = root.children[0].datatype;
+                sv.Value = 0;//mo2ktan
+                AddVariable(sv);
                 //ha3ml 7aga b namae el parameter ??? 
                 HandleListParameters(root.children[2],list);
             }
             else
             {
-                //root.children[0] -> ","
+                //root.children[0] ->"."
                 HandleDatatype(root.children[1]);
                 list.Add(root.children[1].datatype);
-                //root.children[1] ParameterName!
+                //root.children[2] ParameterName!
+                root.children[2].datatype = root.children[1].datatype;
+                SymbolValue sv = new SymbolValue();
+                sv.Name = root.children[2].Name;
+                sv.Scope = CurrentScope;
+                sv.DataType = root.children[1].datatype;
+                sv.Value = 0;//mo2ktan
+                AddVariable(sv);
                 //ha3ml 7aga b namae el parameter ??? 
-                HandleListParameters(root.children[3],list);
+                HandleListParameters(root.children[3], list);
             }
         }
         public static void HandleFuncBody(Node root)
         {
-
+            //root.children[0] } 
+            //root.children[1] statments
+            //root.children[2] return statment
+            HandleReturnStatment(root.children[2]);
+            //root.children[3] ;
+            //root.children[4] }
         }
+        public static void HandleReturnStatment(Node root)
+        {
+            ////root.children[0] return
+            //HandleExpression(root.children[1]);
+            if (!CompareReturnType(CurrentScope, root.children[1].token.token_type))
+            {
+                MessageBox.Show("Return Type incompatable");
+            }
+            CurrentScope = "main";
+        }
+        static bool CompareReturnType(string FunctionName, Token_Class Datatype)
+        {
+            FunctionValue Result = FunctionTable.Find(fv => fv.ID == FunctionName);
+            if (Result == null)
+            {
+                MessageBox.Show("Function does't exist, something went wrong");
+                return false;
+            }
+            else
+            {
+                if (Result.ReturnType != Datatype)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public static TreeNode PrintSemanticTree(Node root)
         {
             TreeNode tree = new TreeNode("Annotated Tree");
