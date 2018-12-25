@@ -45,7 +45,7 @@ namespace JASON_Compiler
         }
         static bool AddVariable(SymbolValue NewSymbolVal)
         {
-            SymbolValue Result = SymbolTable.Find(sv => sv.Name == NewSymbolVal.Name);
+            SymbolValue Result = SymbolTable.Find(sv => sv.Name == NewSymbolVal.Name && sv.Scope==NewSymbolVal.Scope);
             if (Result != null)
             {
 
@@ -134,6 +134,10 @@ namespace JASON_Compiler
             if (root.Name == "WriteStatement")
             {
                 HandleWriteStatement(root);
+            }
+            if(root.Name== "IfStatement")
+            {
+                HandleIfStatment(root);
             }
         }
 
@@ -281,12 +285,14 @@ namespace JASON_Compiler
                 if (root.children[0].children[0].Name.Contains("."))
                 {
                     root.children[0].datatype = root.children[0].datatype.ToString();
-                    root.children[0].children[0].datatype = root.children[0].datatype;
+                    root.children[0].datatype = Token_Class.Float.ToString();
+                    root.children[0].children[0].datatype = Token_Class.Float.ToString();
                 }
                 else
                 {
                     root.children[0].datatype = root.children[0].datatype.ToString();
-                    root.children[0].children[0].datatype = root.children[0].datatype;
+                    root.children[0].datatype = Token_Class.Integer.ToString();
+                    root.children[0].children[0].datatype = Token_Class.Integer.ToString();
                 }
                
             }
@@ -298,7 +304,7 @@ namespace JASON_Compiler
             else
             {
                 //coudl throw exception because might retrun null
-                SymbolValue Result = SymbolTable.Find(sv => sv.Name == root.children[0].Name);
+                SymbolValue Result = SymbolTable.Find(sv => sv.Name == root.children[0].Name && sv.Scope==CurrentScope);
                 root.children[0].datatype = Result.DataType;
                 root.children[0].value = Result.Value;
             }
@@ -541,6 +547,92 @@ namespace JASON_Compiler
             root.children[1].datatype = root.children[1].children[0].datatype;
             root.value = root.children[1].value;
             root.datatype = root.children[1].datatype;
+        }
+        public static void HandleIfStatment(Node root)
+        {
+            //root.children[0] -> if
+            //root.children[1] -> ConditionStatment
+            HandleConditionStatment(root.children[1]);
+            //root.children[2] -> then
+            //root.children[3] -> Statments
+            //root.children[4] -> ElseChoice
+            HandleConditionStatment(root.children[4]);
+        }
+        public static void HandleConditionStatment(Node root)
+        {
+            if (root.children.Count == 0)
+            {
+                return;
+            }
+            if (root.children[0].Name == "Condition")
+            {
+                string VariableName = root.children[0].children[0].Name;
+                SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope == CurrentScope);
+                string Opp = root.children[0].children[1].children[0].Name;
+                HandleTerm(root.children[0].children[2]);
+                root.children[0].value = EvaluateCondition(Result, Opp, root.children[0].children[2]);
+                
+            }
+            else
+            {
+                HandleConditionStatment(root.children[0]);
+            }
+        }
+        public static bool EvaluateCondition(SymbolValue Right,string Opp ,Node Left)
+        {
+            bool Result = false;
+            if (Right.DataType != Left.datatype)
+            {
+                MessageBox.Show("Cannot Compare different datatypes");
+            }
+            else
+            {
+                if (Opp == "=")
+                {
+                    if (Left.datatype == Token_Class.Integer.ToString())
+                    {
+                        Result = (Convert.ToInt32(Right.Value) == Convert.ToInt32(Left.value));
+                    }
+                    else if (Left.datatype == Token_Class.Float.ToString())
+                    {
+                        Result = (Convert.ToDecimal(Right.Value) == Convert.ToDecimal(Left.value));
+                    }
+                }
+                else if (Opp == ">")
+                {
+                    if (Left.datatype == Token_Class.Integer.ToString())
+                    {
+                        Result = (Convert.ToInt32(Right.Value) > Convert.ToInt32(Left.value));
+                    }
+                    else if (Left.datatype == Token_Class.Float.ToString())
+                    {
+                        Result = (Convert.ToDecimal(Right.Value) > Convert.ToDecimal(Left.value));
+                    }
+                }
+                else if (Opp == "<")
+                {
+                    if (Left.datatype == Token_Class.Integer.ToString())
+                    {
+                        Result = (Convert.ToInt32(Right.Value) < Convert.ToInt32(Left.value));
+                    }
+                    else if (Left.datatype == Token_Class.Float.ToString())
+                    {
+                        Result = (Convert.ToDecimal(Right.Value) < Convert.ToDecimal(Left.value));
+                    }
+                }
+                else if (Opp == "<>")
+                {
+                    if (Left.datatype == Token_Class.Integer.ToString())
+                    {
+                        Result = (Convert.ToInt32(Right.Value) != Convert.ToInt32(Left.value));
+                    }
+                    else if (Left.datatype == Token_Class.Float.ToString())
+                    {
+                        Result = (Convert.ToDecimal(Right.Value) != Convert.ToDecimal(Left.value));
+                    }
+                }
+            }
+            return Result;
         }
         public static TreeNode PrintSemanticTree(Node root)
         {
