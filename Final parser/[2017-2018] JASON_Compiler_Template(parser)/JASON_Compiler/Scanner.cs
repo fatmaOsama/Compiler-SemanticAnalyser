@@ -11,7 +11,7 @@ public enum Token_Class
     GreaterThanOp, NotEqualOp, PlusOp, MinusOp, MultiplyOp, DivideOp,
     Idenifier, Constant, String, Float, Integer, And, Or, Endl,
          LeftParanthesis, RightParanthesis,Main,Repeat,End,
-    Comment, LeftBrace, RightBrace, SemiColon, Assign, Comma, Return
+    Comment, LeftBrace, RightBrace, SemiColon, Assign, Comma, Return,Error
 }
 
 namespace JASON_Compiler

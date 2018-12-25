@@ -30,7 +30,7 @@ namespace JASON_Compiler
         public static List<SymbolValue> SymbolTable = new List<SymbolValue>();
         public static List<FunctionValue> FunctionTable = new List<FunctionValue>();
 
-        public static string CurrentScope="main";
+        public static string CurrentScope="main",CalledFunction="";
 
         public SemanticAnalyser()
         {
@@ -87,6 +87,17 @@ namespace JASON_Compiler
                     MessageBox.Show("DataTypes Missmatch");
                     return false;
                 }
+            }
+            return true;
+        }
+
+        static bool CheckIfDeclared(string VariableName,string ParameterType)
+        {
+            SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope==CurrentScope);
+            if (Result==null|| Result.DataType!=ParameterType)
+            {
+                MessageBox.Show("Variable" + VariableName + " is not declared");
+                return false;
             }
             return true;
         }
@@ -257,10 +268,11 @@ namespace JASON_Compiler
             }
             else if (root.children[0].Name == "FunctionCall")
             {
-                ///function call
+                HandleFuncCall(root.children[0]);
             }
             else
             {
+                //coudl throw exception because might retrun null
                 SymbolValue Result = SymbolTable.Find(sv => sv.Name == root.children[0].Name);
                 root.children[0].datatype = Result.DataType;
                 root.children[0].value = Result.Value;
@@ -309,6 +321,63 @@ namespace JASON_Compiler
                 }
             }
             
+        }
+        public static void HandleFuncCall(Node root)
+        {
+            string FunctionName = root.children[0].Name;
+            CalledFunction = FunctionName;
+            //root.children[1] (
+            int count = 0;
+            HandleCallList(root.children[2].children[0],ref count);
+            //MessageBox.Show(count.ToString());
+            FunctionValue temp = FunctionTable.Find(fv => fv.ID == CalledFunction);
+            if (temp.ParameterNumber != count)
+            {
+                MessageBox.Show("Exceeded Parameters Number!");
+            }
+        }
+        public static void HandleCallList(Node root,ref int count)
+        {
+            if (root.children.Count() == 0)
+            {
+                return;
+            }
+            if(root.Name== "FuncCallListDash" || root.Name== "FuncCallList")
+            {
+                HandleCallList(root.children[0],ref count);
+            }
+            else
+            {
+                int start = 0;
+                if (root.children[0].Name == ",")
+                {
+                    start = 1;
+                }
+                for (int i = start; i < root.children.Count; i++)
+                {
+                    HandleCallList(root.children[i], ref count);
+                }
+            }
+            if (root.Name=="terminals") //yeb2a ana fi terminal 
+            {
+                FunctionValue temp = FunctionTable.Find(fv => fv.ID == CalledFunction);
+                if (temp == null)
+                {
+                    MessageBox.Show("Function is not declared");
+                }
+                else if(count < temp.ParameterNumber)
+                {
+                    string ParameterType= temp.ParamterDataType[count];
+                    string VariableName = root.children[0].Name;
+                    if(!CheckIfDeclared(VariableName, ParameterType))
+                    {
+                        MessageBox.Show("Wrong parameter");
+                    }
+                }
+                count++; //kda da el number of parameters
+
+            }
+           
         }
         public static void HandleFunctionStatement(Node root)
         {
