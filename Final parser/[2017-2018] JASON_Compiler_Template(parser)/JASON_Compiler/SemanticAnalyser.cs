@@ -28,7 +28,7 @@ namespace JASON_Compiler
         public static Node treeroot;
 
         public static List<SymbolValue> SymbolTable = new List<SymbolValue>();
-        public static List<SymbolValue> FunctionTable = new List<SymbolValue>();
+        public static List<FunctionValue> FunctionTable = new List<FunctionValue>();
 
         public static string CurrentScope="main";
 
@@ -36,8 +36,11 @@ namespace JASON_Compiler
         {
             CurrentScope = "Main";
         }
-        static bool DeclareFunc(FunctionValue fv)
+        static bool DeclareFunc(FunctionValue NewFunction)
         {
+            FunctionValue Result = FunctionTable.Find(fv => fv.ID == NewFunction.ID);
+            //if(Result !)
+            FunctionTable.Add(NewFunction);
             return true;
         }
         static bool AddVariable(SymbolValue NewSymbolVal)
@@ -336,8 +339,9 @@ namespace JASON_Compiler
             fv.ParamterDataType = new List<string>();
             HandleListParameters(root.children[3], fv.ParamterDataType);
             fv.ParameterNumber = fv.ParamterDataType.Count();
-            MessageBox.Show(fv.ParameterNumber.ToString());
+            //MessageBox.Show(fv.ParameterNumber.ToString());
             //still need to add parameters to Symbol table
+            DeclareFunc(fv);
         }
         public static void HandleListParameters(Node root, List<string> list)
         {

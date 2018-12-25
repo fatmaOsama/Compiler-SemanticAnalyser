@@ -58,6 +58,10 @@ namespace JASON_Compiler
             {
                 listBox1.Items.Add(item.Scope + " " + item.DataType + " " + item.Name + "=" + item.Value);
             }
+            foreach (var item in SemanticAnalyser.FunctionTable)
+            {
+                listBox2.Items.Add(item.ReturnType + " " + item.ID + " " + item.ParameterNumber );
+            }
         }
     }
 }
