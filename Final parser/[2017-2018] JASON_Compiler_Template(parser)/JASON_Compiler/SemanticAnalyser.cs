@@ -127,7 +127,14 @@ namespace JASON_Compiler
             {
                 HandleFunctionStatement(root);
             }
-      
+            if (root.Name == "ReadStatement")
+            {
+                HandleReadStatement(root);
+            }
+            if (root.Name == "WriteStatement")
+            {
+                HandleWriteStatement(root);
+            }
         }
 
         public static void HandleDeclerationStatment(Node root)
@@ -213,7 +220,8 @@ namespace JASON_Compiler
             }
             else
             {
-                //string!!
+                root.children[0].value = root.children[0].Name;
+                root.children[0].datatype = Token_Class.String.ToString();
             }
             root.datatype = root.children[0].datatype;
             root.value = root.children[0].value;
@@ -505,7 +513,35 @@ namespace JASON_Compiler
             }
             return true;
         }
-
+        public static void HandleReadStatement(Node root)
+        {
+            //root.children[0] read;
+            string currentVariable = root.children[1].Name;
+            SymbolValue Result = SymbolTable.Find(sv => sv.Name == currentVariable && sv.Scope == CurrentScope);
+            if (Result == null)
+            {
+                MessageBox.Show("Variable " + currentVariable + " doesn't exist");
+            }
+            else
+            {
+                root.value = Result.Value;
+                root.datatype = Result.DataType;
+                root.children[1].value = Result.Value;
+                root.children[1].datatype = Result.DataType;
+            }
+        }
+        public static void HandleWriteStatement(Node root)
+        {
+            //root.children[0] write;
+            if (root.children[1].children[0].Name == "Expression")
+            {
+                HandleExpression(root.children[1].children[0]);
+            }
+            root.children[1].value = root.children[1].children[0].value;
+            root.children[1].datatype = root.children[1].children[0].datatype;
+            root.value = root.children[1].value;
+            root.datatype = root.children[1].datatype;
+        }
         public static TreeNode PrintSemanticTree(Node root)
         {
             TreeNode tree = new TreeNode("Annotated Tree");
