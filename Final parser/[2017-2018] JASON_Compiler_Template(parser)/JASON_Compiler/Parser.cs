@@ -223,11 +223,11 @@ namespace JASON_Compiler
         static Node MainFunction()
         {
             Node n = new Node("MainFunction");
-            MessageBox.Show("i=" + i.ToString());
+           // MessageBox.Show("i=" + i.ToString());
             n.children.Add(DataType());
-            MessageBox.Show("i=" + i.ToString());
+            //MessageBox.Show("i=" + i.ToString());
             n.children.Add(match(Token_Class.Main));
-            MessageBox.Show("i=" + i.ToString());
+            //MessageBox.Show("i=" + i.ToString());
             n.children.Add(match(Token_Class.LeftParanthesis));
             n.children.Add(match(Token_Class.RightParanthesis));
             n.children.Add(FuncBody());

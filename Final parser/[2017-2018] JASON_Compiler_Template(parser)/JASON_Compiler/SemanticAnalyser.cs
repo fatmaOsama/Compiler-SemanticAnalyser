@@ -36,6 +36,10 @@ namespace JASON_Compiler
         {
             CurrentScope = "Main";
         }
+        static bool DeclareFunc(FunctionValue fv)
+        {
+            return true;
+        }
         static bool AddVariable(SymbolValue NewSymbolVal)
         {
             SymbolValue Result = SymbolTable.Find(sv => sv.Name == NewSymbolVal.Name);
@@ -105,6 +109,10 @@ namespace JASON_Compiler
             {
                 HandleAssignmentStatement(root);
             }
+            if(root.Name == "FuncStatement")
+            {
+                HandleFunctionStatement(root);
+            }
 
         }
 
@@ -119,6 +127,7 @@ namespace JASON_Compiler
         public static void HandleDatatype(Node root)
         {
             root.datatype = root.children[0].Name;
+            root.token.token_type=root.children[0].token.token_type;
         }
         public static void HandleListIdentifier(Node root)
         {
@@ -297,6 +306,66 @@ namespace JASON_Compiler
                 }
             }
             
+        }
+        public static void HandleFunctionStatement(Node root)
+        {
+            if (root.children.Count == 0)
+            {
+                return;
+            }
+            if (root.Name == "FuncStatment1" || root.Name== "FuncStatement")
+            {
+                HandleFunctionStatement(root.children[0]);
+            }
+            else
+            {
+                HandleFuncDecl(root.children[0]);
+                HandleFuncBody(root.children[1]);
+                HandleFunctionStatement(root.children[2]);
+            }
+
+        }
+        public static void HandleFuncDecl(Node root)
+        {
+            FunctionValue fv = new FunctionValue();
+            HandleDatatype(root.children[0]);
+            fv.ReturnType = root.children[0].token.token_type;
+            //HandleFuncName
+            fv.ID = root.children[1].children[0].Name;
+            //root.children[2]=(
+            fv.ParamterDataType = new List<string>();
+            HandleListParameters(root.children[3], fv.ParamterDataType);
+            fv.ParameterNumber = fv.ParamterDataType.Count();
+            MessageBox.Show(fv.ParameterNumber.ToString());
+            //still need to add parameters to Symbol table
+        }
+        public static void HandleListParameters(Node root, List<string> list)
+        {
+            if (root.children.Count == 0)
+            {
+                return;
+            }
+            if (root.children.Count == 3)
+            {
+                HandleDatatype(root.children[0]);
+                list.Add(root.children[0].datatype);
+                //root.children[1] ParameterName!
+                //ha3ml 7aga b namae el parameter ??? 
+                HandleListParameters(root.children[2],list);
+            }
+            else
+            {
+                //root.children[0] -> ","
+                HandleDatatype(root.children[1]);
+                list.Add(root.children[1].datatype);
+                //root.children[1] ParameterName!
+                //ha3ml 7aga b namae el parameter ??? 
+                HandleListParameters(root.children[3],list);
+            }
+        }
+        public static void HandleFuncBody(Node root)
+        {
+
         }
         public static TreeNode PrintSemanticTree(Node root)
         {
