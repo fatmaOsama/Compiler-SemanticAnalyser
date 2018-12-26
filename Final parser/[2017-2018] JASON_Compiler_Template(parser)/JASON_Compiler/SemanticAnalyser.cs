@@ -16,7 +16,6 @@ namespace JASON_Compiler
     }
     class FunctionValue
     {
-        //May add void to TokenClass
         public string ID;
         public Token_Class ReturnType;
         public List<string> ParamterDataType = new List<string>();
@@ -30,16 +29,21 @@ namespace JASON_Compiler
         public static List<SymbolValue> SymbolTable = new List<SymbolValue>();
         public static List<FunctionValue> FunctionTable = new List<FunctionValue>();
 
-        public static string CurrentScope="main",CalledFunction="";
+        public static string CurrentScope="main",CalledFunction="",InnerScope="";
+        public static bool GoInIf = false,GoInElse=false,GoInELseIf=false;
 
         public SemanticAnalyser()
         {
-            CurrentScope = "Main";
+            CurrentScope = "main";
         }
         static bool DeclareFunc(FunctionValue NewFunction)
         {
             FunctionValue Result = FunctionTable.Find(fv => fv.ID == NewFunction.ID);
-            //if(Result !)
+            if(Result != null)
+            {
+                MessageBox.Show("Function " + NewFunction.ID + " already Declared");
+                return false;
+            }
             FunctionTable.Add(NewFunction);
             return true;
         }
@@ -115,32 +119,45 @@ namespace JASON_Compiler
             {
                 TraverseTree(root.children[i]);
             }
-            if (root.Name == "DeclerationStatement")
-            {
-                 HandleDeclerationStatment(root);
-            }
-            if (root.Name == "AssignmentStatement")
-            {
-                HandleAssignmentStatement(root);
-            }
             if (root.Name == "FuncStatment1" || root.Name == "FuncStatement")
             {
                 HandleFunctionStatement(root);
             }
-            if (root.Name == "ReadStatement")
+            if (root.Name == "MainFunction")
             {
-                HandleReadStatement(root);
+                HandleMainStatments(root.children[4].children[1]);
             }
-            if (root.Name == "WriteStatement")
+        }
+        public static void HandleMainStatments(Node root)
+        {
+            if (root.Name == "DeclerationStatement")
             {
-                HandleWriteStatement(root);
+                HandleDeclerationStatment(root);
             }
-            if(root.Name== "IfStatement")
+            else if (root.Name == "AssignmentStatement")
+            {
+                HandleAssignmentStatement(root);
+            }
+           else if (root.Name == "IfStatement")
             {
                 HandleIfStatment(root);
             }
+            else if (root.Name == "ReadStatement")
+            {
+                HandleReadStatement(root);
+            }
+            else if (root.Name == "WriteStatement")
+            {
+                HandleWriteStatement(root);
+            }
+            else
+            {
+                for(int i = 0; i < root.children.Count; i++)
+                {
+                    HandleMainStatments(root.children[i]);
+                }
+            }
         }
-
         public static void HandleDeclerationStatment(Node root)
         {
             SymbolValue sv = new SymbolValue();
@@ -164,6 +181,11 @@ namespace JASON_Compiler
             {
                 root.children[0].datatype = root.datatype;
                 HandleZ(root.children[0]);
+                if (root.children.Count == 2)
+                {
+                    root.children[1].datatype = root.datatype;
+                    HandleListIdentifier(root.children[1]);
+                }
             }
             else
             {
@@ -174,8 +196,8 @@ namespace JASON_Compiler
                 }
                 for (int i = start; i < root.children.Count; i++)
                 {
-                    root.children[1].datatype = root.datatype;
-                    HandleListIdentifier(root.children[1]);
+                    root.children[i].datatype = root.datatype;
+                    HandleListIdentifier(root.children[i]);
                 }
             }
          }
@@ -191,6 +213,10 @@ namespace JASON_Compiler
                 sv.DataType = root.children[0].datatype;
                 sv.Scope = CurrentScope;
                 sv.Value = "0";//mo2ktan
+                if (GoInIf == true || GoInELseIf==true || GoInElse==true)
+                {
+                    sv.Scope += InnerScope;
+                }
                 AddVariable(sv);
                 HandleAssignmentStatement(root.children[0]);
             }
@@ -303,7 +329,7 @@ namespace JASON_Compiler
             }
             else
             {
-                //coudl throw exception because might retrun null
+                
                 SymbolValue Result = SymbolTable.Find(sv => sv.Name == root.children[0].Name && sv.Scope==CurrentScope);
                 if (Result == null)
                 {
@@ -565,13 +591,27 @@ namespace JASON_Compiler
         {
             //root.children[0] -> if
             //root.children[1] -> ConditionStatment
-            HandleConditionStatment(root.children[1]);
             //root.children[2] -> then
             //root.children[3] -> Statments
             //root.children[4] -> ElseChoice
+            HandleConditionStatment(root.children[1]);
+            if (Convert.ToBoolean(root.children[1].value) == true)
+            {
+                InnerScope += ".if";
+                GoInIf = true;
+            }
+            else
+            {
+                GoInIf = false;
+            }
+            //if (GoInIf == false)
+            //{
+
+            //}
             if(root.children[4].children[0].Name== "ElseIfStatement")
             {
                 //HandleElseIfStatment(root.children[4].children[0]);
+             
                 HandleIfStatment(root.children[4].children[0]);
             }
             else if (root.children[4].children[0].Name == "ElseStatement")
@@ -581,8 +621,12 @@ namespace JASON_Compiler
             }
             else //hena fel end
             {
-                CurrentScope = "main";
+                InnerScope = "";
+                GoInIf = false;
+                GoInELseIf = false;
+                GoInElse = false;
             }
+            HandleMainStatments(root.children[3]);
         }
         //public static void HandleElseIfStatment(Node root)
         //{
