@@ -29,7 +29,7 @@ namespace JASON_Compiler
         public static List<SymbolValue> SymbolTable = new List<SymbolValue>();
         public static List<FunctionValue> FunctionTable = new List<FunctionValue>();
 
-        public static string CurrentScope="main",CalledFunction="",InnerScope="";
+        public static string CurrentScope="main",CalledFunction="",InnerScope="",CurrentDeclaredFn="";
         public static bool GoInIf = false,GoInElse=false,GoInELseIf=false;
 
         public SemanticAnalyser()
@@ -97,7 +97,7 @@ namespace JASON_Compiler
 
         static bool CheckIfDeclared(string VariableName,string ParameterType)
         {
-            SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope==CurrentScope);
+            SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && CurrentScope.Contains(sv.Scope));
             if (Result==null|| Result.DataType!=ParameterType)
             {
                 MessageBox.Show("Variable" + VariableName + " is not declared");
@@ -150,6 +150,11 @@ namespace JASON_Compiler
             {
                 HandleWriteStatement(root);
             }
+            else if (root.Name == "RepeatStatement")
+            {
+                HandleRepeatStatement(root);
+            }
+            //Need to add HandleReturnStatment! 
             else
             {
                 for(int i = 0; i < root.children.Count; i++)
@@ -213,10 +218,6 @@ namespace JASON_Compiler
                 sv.DataType = root.children[0].datatype;
                 sv.Scope = CurrentScope;
                 sv.Value = "0";//mo2ktan
-                if (GoInIf == true || GoInELseIf==true || GoInElse==true)
-                {
-                    sv.Scope += InnerScope;
-                }
                 AddVariable(sv);
                 HandleAssignmentStatement(root.children[0]);
             }
@@ -330,7 +331,7 @@ namespace JASON_Compiler
             else
             {
                 
-                SymbolValue Result = SymbolTable.Find(sv => sv.Name == root.children[0].Name && sv.Scope==CurrentScope);
+                SymbolValue Result = SymbolTable.Find(sv => sv.Name == root.children[0].Name && CurrentScope.Contains(sv.Scope));
                 if (Result == null)
                 {
                     MessageBox.Show("Variable " + root.children[0].Name + " doesn't exist in " + CurrentScope);
@@ -392,7 +393,15 @@ namespace JASON_Compiler
             string FunctionName = root.children[0].Name;
             CalledFunction = FunctionName;
             FunctionValue temp = FunctionTable.Find(fv => fv.ID == CalledFunction);
-            root.datatype = temp.ReturnType.ToString();
+            if (temp == null)
+            {
+                MessageBox.Show("Function " + CalledFunction + " is not declared");
+            }
+            else
+            {
+               root.datatype = temp.ReturnType.ToString();
+
+            }
             //root.children[1] (
             int count = 0;
             HandleCallList(root.children[2].children[0],ref count);
@@ -471,6 +480,7 @@ namespace JASON_Compiler
             //HandleFuncName
             fv.ID = root.children[1].children[0].Name;
             CurrentScope = fv.ID;
+            CurrentDeclaredFn = fv.ID;
             //root.children[2]=(
             fv.ParamterDataType = new List<string>();
             HandleListParameters(root.children[3], fv.ParamterDataType);
@@ -521,6 +531,7 @@ namespace JASON_Compiler
         {
             //root.children[0] } 
             //root.children[1] statments
+            HandleMainStatments(root.children[1]);
             //root.children[2] return statment
             HandleReturnStatment(root.children[2]);
             //root.children[3] ;
@@ -557,7 +568,7 @@ namespace JASON_Compiler
         {
             //root.children[0] read;
             string currentVariable = root.children[1].Name;
-            SymbolValue Result = SymbolTable.Find(sv => sv.Name == currentVariable && sv.Scope == CurrentScope);
+            SymbolValue Result = SymbolTable.Find(sv => sv.Name == currentVariable && CurrentScope.Contains(sv.Scope));
             if (Result == null)
             {
                 MessageBox.Show("Variable " + currentVariable + " doesn't exist");
@@ -587,59 +598,75 @@ namespace JASON_Compiler
             root.value = root.children[1].value;
             root.datatype = root.children[1].datatype;
         }
+        public static void HandleRepeatStatement(Node root)
+        {
+            HandleConditionStatment(root.children[3]);
+            while (Convert.ToBoolean(root.children[3].value) == false)
+            {
+                HandleMainStatments(root.children[1]);
+            }
+        }
+        public static string ReverseString(string s)
+        {
+            char[] arr = s.ToCharArray();
+            Array.Reverse(arr);
+            return new string(arr);
+        }
         public static void HandleIfStatment(Node root)
         {
             //root.children[0] -> if
             //root.children[1] -> ConditionStatment
             //root.children[2] -> then
-            //root.children[3] -> Statments
-            //root.children[4] -> ElseChoice
             HandleConditionStatment(root.children[1]);
             if (Convert.ToBoolean(root.children[1].value) == true)
             {
-                InnerScope += ".if";
+                CurrentScope += ".If";
                 GoInIf = true;
+                //root.children[3] -> Statments
+                HandleMainStatments(root.children[3]);
+                string Reversed = ReverseString(CurrentScope);
+                string[] Splited = Reversed.Split(new char[] { '.' }, 2);
+                CurrentScope = ReverseString(Splited[1]);
+                GoInIf = false;
             }
             else
             {
-                GoInIf = false;
+                //root.children[4] -> ElseChoice
+                HandleElseChoiceStatment(root.children[4]);
             }
-            //if (GoInIf == false)
-            //{
-
-            //}
-            if(root.children[4].children[0].Name== "ElseIfStatement")
+        }
+        public static void HandleElseChoiceStatment(Node root)
+        {
+            HandleConditionStatment(root.children[1]);
+            if (root.children[1].Name== "ElseIfStatement")
             {
-                //HandleElseIfStatment(root.children[4].children[0]);
-             
-                HandleIfStatment(root.children[4].children[0]);
+                if (Convert.ToBoolean(root.children[1].value) == true)
+                {
+                    InnerScope += ".ElseIf";
+                    GoInELseIf = true;
+                    //root.children[3] -> Statments
+                    HandleMainStatments(root.children[3]);
+                    string Reversed = ReverseString(CurrentScope);
+                    string[] Splited = Reversed.Split(new char[] { '.' }, 2);
+                    CurrentScope = ReverseString(Splited[1]);
+                    GoInELseIf = false;
+                }
+                else
+                {
+                    //root.children[4] -> ElseChoice
+                    HandleElseChoiceStatment(root.children[4]);
+                }
             }
-            else if (root.children[4].children[0].Name == "ElseStatement")
+            else if (root.children[1].Name == "ElseStatement")
             {
-                //Nothing to handle
-               // HandleElseStatment(root.children[4].children[0]);
-            }
-            else //hena fel end
-            {
-                InnerScope = "";
-                GoInIf = false;
-                GoInELseIf = false;
+                InnerScope += ".ElseIf";
+                GoInElse = true;
+                HandleMainStatments(root.children[1]);
+                string Reversed = ReverseString(CurrentScope);
+                string[] Splited = Reversed.Split(new char[] { '.' }, 2);
+                CurrentScope = ReverseString(Splited[1]);
                 GoInElse = false;
             }
-            HandleMainStatments(root.children[3]);
-        }
-        //public static void HandleElseIfStatment(Node root)
-        //{
-        //    //root.children[0] -> elseif
-        //    //root.children[1] -> ConditionStatment
-        //    HandleConditionStatment(root.children[1]);
-        //    //root.children[2] -> then
-        //    //root.children[3] -> Statments
-        //    //root.children[4] -> ElseChoice
-        //}
-        public static void HandleElseStatment(Node root)
-        {
-
         }
         public static void HandleConditionStatment(Node root)
         {
@@ -661,12 +688,20 @@ namespace JASON_Compiler
                 //opp
                 //condtion
                 string VariableName = root.children[1].children[0].Name;
-                SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope == CurrentScope);
-                root.children[1].children[0].value = Result.Value;
-                root.children[1].children[0].datatype = Result.DataType;
-                string Opp = root.children[1].children[1].children[0].Name;
-                HandleTerm(root.children[1].children[2]);
-                root.children[1].value = EvaluateCondition(Result, Opp, root.children[1].children[2]);
+                SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && CurrentScope.Contains(sv.Scope));
+                if (Result == null)
+                {
+                    MessageBox.Show("Variable " + VariableName + " doesn't exist in " + CurrentScope);
+                }
+                else
+                {
+                    root.children[1].children[0].value = Result.Value;
+                    root.children[1].children[0].datatype = Result.DataType;
+                    string Opp = root.children[1].children[1].children[0].Name;
+                    HandleTerm(root.children[1].children[2]);
+                    root.children[1].value = EvaluateCondition(Result, Opp, root.children[1].children[2]);
+
+                }
                 //CondStatments
                 HandleConditionStatment(root.children[2]);
                 if (root.children[2].children.Count == 0)
@@ -683,13 +718,22 @@ namespace JASON_Compiler
             {
                 if (root.children[0].Name == "Condition")
                 {
+                    //Need to check every find conditions
                     string VariableName = root.children[0].children[0].Name;
-                    SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && sv.Scope == CurrentScope);
-                    root.children[0].children[0].value = Result.Value;
-                    root.children[0].children[0].datatype = Result.DataType;
-                    string Opp = root.children[0].children[1].children[0].Name;
-                    HandleTerm(root.children[0].children[2]);
-                    root.children[0].value = EvaluateCondition(Result, Opp, root.children[0].children[2]);
+                    SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && CurrentScope.Contains(sv.Scope));
+                    if (Result == null)
+                    {
+                        MessageBox.Show("Variable " + VariableName + " doesn't exist in " + CurrentScope);
+                    }
+                    else
+                    {
+
+                        root.children[0].children[0].datatype = Result.DataType;
+                        string Opp = root.children[0].children[1].children[0].Name;
+                        HandleTerm(root.children[0].children[2]);
+                        root.children[0].value = EvaluateCondition(Result, Opp, root.children[0].children[2]);
+                        root.children[0].children[0].value = Result.Value;
+                    }
 
                     HandleConditionStatment(root.children[1]);
                     if (root.children[1].children.Count == 0)
