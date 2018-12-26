@@ -126,6 +126,7 @@ namespace JASON_Compiler
             if (root.Name == "MainFunction")
             {
                 HandleMainStatments(root.children[4].children[1]);
+                HandleReturnStatment(root.children[4].children[2]);
             }
         }
         public static void HandleMainStatments(Node root)
@@ -154,7 +155,7 @@ namespace JASON_Compiler
             {
                 HandleRepeatStatement(root);
             }
-            //Need to add HandleReturnStatment! 
+
             else
             {
                 for(int i = 0; i < root.children.Count; i++)
@@ -540,7 +541,7 @@ namespace JASON_Compiler
         public static void HandleReturnStatment(Node root)
         {
             ////root.children[0] return
-            //HandleExpression(root.children[1]);
+            HandleExpression(root.children[1]);
             if (!CompareReturnType(CurrentScope, root.children[1].token.token_type))
             {
                 MessageBox.Show("Return Type incompatable");
@@ -632,7 +633,7 @@ namespace JASON_Compiler
             else
             {
                 //root.children[4] -> ElseChoice
-                HandleElseChoiceStatment(root.children[4]);
+                HandleElseChoiceStatment(root.children[4].children[0]);
             }
         }
         public static void HandleElseChoiceStatment(Node root)
