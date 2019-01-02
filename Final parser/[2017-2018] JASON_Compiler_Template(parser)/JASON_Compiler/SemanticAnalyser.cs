@@ -25,7 +25,8 @@ namespace JASON_Compiler
     class SemanticAnalyser
     {
         public static Node treeroot;
-
+        public static Node tem = new Node();
+        public static Node Newtem = new Node();
         public static List<SymbolValue> SymbolTable = new List<SymbolValue>();
         public static List<FunctionValue> FunctionTable = new List<FunctionValue>();
 
@@ -70,9 +71,80 @@ namespace JASON_Compiler
             }
             return true;
         }
+        public static void HandleMulOp(Node root, Node root1)
+        {
+
+            if (root1.children[0].children[0].Name == "*" && root.datatype == "Integer")
+            {
+
+                root1.value = Convert.ToInt16(root1.value) * Convert.ToInt16(root.value);
+
+            }
+
+            if (root1.children[0].children[0].Name == "/" && root.datatype == "Integer")
+            {
+                root1.value = Convert.ToInt16(root.value) / Convert.ToInt16(root1.value);
+            }
+
+            if (root1.children[0].children[0].Name == "*" && root.datatype == "float")
+            {
+                root1.value = Convert.ToDouble(root1.value) * Convert.ToDouble(root.value);
+
+            }
+
+            if (root1.children[0].children[0].Name == "/" && root.datatype == "float")
+            {
+
+                root1.value = Convert.ToDouble(root.value) / Convert.ToDouble(root1.value);
+            }
+
+
+
+
+        }
+
+        public static void HandleAddOp(Node root, Node root1)
+        {
+            if (root.datatype == Token_Class.Float.ToString() && root1.datatype == Token_Class.Integer.ToString())
+            {
+                
+                root1.datatype = Token_Class.Float.ToString();
+            }
+            else if (root.datatype == Token_Class.Integer.ToString() && root1.datatype == Token_Class.Float.ToString())
+            {
+                
+                root.datatype = Token_Class.Float.ToString();
+            }
+
+            if (root1.children[0].children[0].Name == "+" && root.datatype == Token_Class.Integer.ToString())
+            {
+
+                root1.value = Convert.ToInt32(root1.value) + Convert.ToInt32(root.value);
+
+            }
+
+            if (root1.children[0].children[0].Name == "-" && root.datatype == Token_Class.Integer.ToString())
+            {
+                root1.value = Convert.ToInt32(root.value) - Convert.ToInt32(root1.value);
+            }
+
+            if (root1.children[0].children[0].Name == "+" && root.datatype == Token_Class.Float.ToString())
+            {
+                root1.value = Convert.ToDouble(root1.value) + Convert.ToDouble(root.value);
+
+            }
+
+            if (root1.children[0].children[0].Name == "-" && root.datatype == Token_Class.Float.ToString())
+            {
+
+                root1.value = Convert.ToDouble(root.value) - Convert.ToDouble(root1.value);
+            }
+
+        }
+
         static bool AssignValue(string VariableName,Node Expression)
         {
-            SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName);
+            SymbolValue Result = SymbolTable.Find(sv => sv.Name == VariableName && CurrentScope.Contains(sv.Scope));
             if (Result == null)
             {
                 MessageBox.Show("Variable "+ VariableName+" Doesn't Exist");
@@ -80,15 +152,25 @@ namespace JASON_Compiler
             }
             else
             {
-                if (Result.DataType == Expression.datatype)
+                if (Result.DataType == Expression.datatype)                    
                 {
                     Result.Value = Expression.value;
 
                 }
+                else if (Result.DataType == Token_Class.Float.ToString() && Expression.datatype == Token_Class.Integer.ToString())
+                {
+                    Result.Value = Expression.value;
+                    Expression.datatype= Token_Class.Float.ToString(); 
+                }
+                else if(Result.DataType == Token_Class.Integer.ToString() && Expression.datatype == Token_Class.Float.ToString())
+                {
+                    Result.Value = Expression.value;
+                    Result.DataType = Token_Class.Float.ToString();
+                }
                 else
                 {
                     //Don't forget..int goes in float !!!!
-                    MessageBox.Show("DataTypes Missmatch");
+                    MessageBox.Show("DataTypes"+Result.DataType+"and"+ Expression.datatype + "Missmatch");
                     return false;
                 }
             }
@@ -125,8 +207,14 @@ namespace JASON_Compiler
             }
             if (root.Name == "MainFunction")
             {
+                FunctionValue fv = new FunctionValue();
+                HandleDatatype(root.children[0]);
+                fv.ReturnType = root.children[0].token.token_type;
+                fv.ParameterNumber = 0;
+                fv.ID = root.children[1].Name;
+                DeclareFunc(fv);
                 HandleMainStatments(root.children[4].children[1]);
-                HandleReturnStatment(root.children[4].children[2]);
+                //HandleReturnStatment(root.children[4].children[2]);
             }
         }
         public static void HandleMainStatments(Node root)
@@ -264,30 +352,107 @@ namespace JASON_Compiler
             if (root.children.Count == 0)
             {
                 return;
-            }
-            if (root.children[0].Name == "Eq1")
-            {
-                HandleEquation1(root.children[0]);
-                root.datatype = root.children[0].datatype;
-                root.value = root.children[0].value;
 
             }
+            Handle(root);
+            if (root.children[1].children.Count == 0)
+            {
+                return;
+
+            }
+
+            else
+            {
+                if (root.children.Count == 2)
+                {
+
+                    HandleEquation1(root.children[0]);
+                    root.value = root.children[0].value;
+                    root.datatype = root.children[0].datatype;
+                    tem.value = root.value;
+                    tem.datatype = root.datatype;
+                    HandleEquation(root.children[1]);
+                    root.value = root.children[1].value;
+                    root.datatype = root.children[1].datatype;
+                    //HandleAddOp(root, root.children[1]);
+
+                }
+
+                if (root.children.Count == 3)
+                {
+
+                    HandleEquation1(root.children[1]);
+                    root.value = root.children[1].value;
+                    root.datatype = root.children[1].datatype;
+                    HandleAddOp(tem, root);
+                    tem.value = root.value;
+                    tem.datatype = root.datatype;
+                    HandleEquation(root.children[2]);
+
+                    root.value = tem.value;
+                    root.datatype = tem.datatype;
+                }
+            }
+        }
+        public static void Handle(Node root)
+        {
+            if (root.children.Count == 0)
+            {
+                return;
+            }
+
+            if (root.children[0].Name== "MulOp")
+            {
+
+
+                HandleEquation1(root.children[0]);
+                root.value = root.children[0].value;
+                root.datatype = root.children[0].datatype;
+            }
+
             else
             {
 
-            }   
+                //  HandleEquation(root);
+
+            }
         }
         public static void HandleEquation1(Node root)
         {
-            if(root.children[0].Name == "Eq2")
+            if (root.children.Count == 0)
+            {
+                return;
+            }
+            if (root.children[0].Name == "Eq2")
             {
                 HandleEquation2(root.children[0]);
                 root.datatype = root.children[0].datatype;
                 root.value = root.children[0].value;
+                Newtem.value = root.value;
+                Newtem.datatype = root.datatype;
             }
-            else
+
+            if (root.children[1].children.Count == 3)
             {
 
+                HandleEquation1(root.children[1]);
+                root.value = root.children[1].value;
+                root.datatype = root.children[1].datatype;
+
+            }
+
+            if (root.children[1].Name == "Eq2")
+            {
+
+                HandleEquation2(root.children[1]);
+                root.datatype = root.children[1].datatype;
+                root.value = root.children[1].value;
+                HandleMulOp(Newtem, root);
+                Newtem.value = root.value;
+                Newtem.datatype = root.datatype;
+                HandleEquation1(root.children[2]);
+                root.value = Newtem.value;
+                root.datatype = Newtem.datatype;
             }
         }
         public static void HandleEquation2(Node root)
@@ -295,6 +460,8 @@ namespace JASON_Compiler
             if (root.children[0].Name == "Term")
             {
                 HandleTerm(root.children[0]);
+                root.value = root.children[0].value;
+                root.datatype = root.children[0].datatype;
             }
             else
             {
@@ -602,10 +769,15 @@ namespace JASON_Compiler
         public static void HandleRepeatStatement(Node root)
         {
             HandleConditionStatment(root.children[3]);
+            CurrentScope += ".repeat";
             while (Convert.ToBoolean(root.children[3].value) == false)
             {
                 HandleMainStatments(root.children[1]);
+                HandleConditionStatment(root.children[3]);
             }
+            string Reversed = ReverseString(CurrentScope);
+            string[] Splited = Reversed.Split(new char[] { '.' }, 2);
+            CurrentScope = ReverseString(Splited[1]);
         }
         public static string ReverseString(string s)
         {
@@ -633,13 +805,21 @@ namespace JASON_Compiler
             else
             {
                 //root.children[4] -> ElseChoice
+                if (root.children[4].children.Count != 0)
+                {
                 HandleElseChoiceStatment(root.children[4].children[0]);
+
+                }
             }
         }
         public static void HandleElseChoiceStatment(Node root)
         {
+            if (root.children.Count == 0)
+            {
+                return;
+            }
             HandleConditionStatment(root.children[1]);
-            if (root.children[1].Name== "ElseIfStatement")
+            if (root.Name== "ElseIfStatement")
             {
                 if (Convert.ToBoolean(root.children[1].value) == true)
                 {
@@ -658,9 +838,9 @@ namespace JASON_Compiler
                     HandleElseChoiceStatment(root.children[4]);
                 }
             }
-            else if (root.children[1].Name == "ElseStatement")
+            else if (root.Name == "ElseStatement")
             {
-                InnerScope += ".ElseIf";
+                CurrentScope += ".ElseIf";
                 GoInElse = true;
                 HandleMainStatments(root.children[1]);
                 string Reversed = ReverseString(CurrentScope);

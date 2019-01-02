@@ -6,7 +6,7 @@ write endl;
 float z1 := 3*2*(2+1)/2-5.5;
 int val;
 read val;  
-if  z1 > 5 || z1 < counter && z1 = 1 then
+if  z1 > 5 || z1 < val && z1 = 1 then
     write z1;
 else
     z1 := val;
